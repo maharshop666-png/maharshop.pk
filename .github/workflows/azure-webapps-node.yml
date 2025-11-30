@@ -1,0 +1,49 @@
+{
+  "name": "MAHAR SHOP",
+  "short_name": "MAHAR SHOP",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "description": "MAHAR SHOP - Online clothing store with cart, search, and WhatsApp ordering.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+const CACHE_NAME = "mahar-shop-cache-v1";
+const urlsToCache = [
+  "/index.html",
+  "/admin.html",
+  "/style.css",
+  "/app.js",
+  "/data.js",
+  "/manifest.json"
+];
+
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(response => response || fetch(event.request))
+  );
+});
+<link rel="manifest" href="manifest.json">
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+  .then(() => console.log('Service Worker Registered'));
+}
+</script>

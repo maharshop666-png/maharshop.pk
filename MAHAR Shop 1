@@ -1,0 +1,141 @@
+body { font-family: Arial; margin: 0; background:#f5f5f5; }
+header { background: black; color:white; padding:15px; display:flex; justify-content:space-between; }
+nav a { color:white; margin-left:15px; text-decoration:none; }
+.products { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px; }
+.product { background:white; width:200px; padding:10px; border-radius:8px; box-shadow:0 0 5px #aaa; text-align:center; }
+.product img { width:100%; border-radius:5px; }
+button { margin-top:8px; padding:8px; width:100%; border:none; background:black; color:white; cursor:pointer; }
+.search-box { text-align:center; padding:20px; }
+.search-box input { width:80%; padding:10px; border:1px solid #aaa; border-radius:5px; }
+.admin-box { width:300px; margin:auto; padding:20px; background:white; margin-top:30px; border-radius:10px; box-shadow:0 0 10px #aaa; }
+.admin-box input { width:100%; padding:10px; margin-top:10px; }
+function loadProducts(filter = "") {
+    let products = JSON.parse(localStorage.getItem("products"));
+    let list = document.getElementById("product-list");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    products
+        .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()))
+        .forEach(p => {
+            list.innerHTML += `
+              <div class="product">
+                <img src="${p.img}">
+                <h3>${p.name}</h3>
+                <p>Rs. ${p.price}</p>
+                <button onclick="addToCart(${p.id})">Add to Cart</button>
+                <button onclick="whatsappBuy('${p.name}', ${p.price})">Buy Now</button>
+              </div>`;
+        });
+}
+
+function addToCart(id) {
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    cart.push(id);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Added to cart!");
+}
+
+function loadCart() {
+    let products = JSON.parse(localStorage.getItem("products"));
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    let list = document.getElementById("cart-list");
+    if (!list) return;
+
+    list.innerHTML = "";
+    let total = 0;
+
+    cart.forEach(id => {
+        let p = products.find(x => x.id == id);
+        total += p.price;
+        list.innerHTML += `<p>${p.name} — Rs. ${p.price}</p>`;
+    });
+
+    document.getElementById("total").innerText = total;
+}
+
+function whatsappBuy(name, price) {
+    let phone = "03000000000";  
+    let msg = encodeURI(`I want to buy: ${name} (Rs. ${price})`);
+    window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+}
+
+// ADMIN PANEL
+function addProduct() {
+    let name = document.getElementById("pname").value;
+    let price = document.getElementById("pprice").value;
+    let cat = document.getElementById("pcat").value;
+    let img = document.getElementById("pimg").value;
+
+    if (!name || !price) {
+        alert("Name & price required.");
+        return;
+    }
+
+    let products = JSON.parse(localStorage.getItem("products"));
+    let id = products.length ? products[products.length - 1].id + 1 : 1;
+
+    products.push({id, name, price: Number(price), category: cat, img});
+    localStorage.setItem("products", JSON.stringify(products));
+
+    alert("Product Added!");
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Admin Panel</h1>
+    <nav>
+        <a href="index.html">Store</a>
+    </nav>
+</header>
+
+<section class="admin-box">
+    <h2>Add New Product</h2>
+
+    <input id="pname" placeholder="Product Name">
+    <input id="pprice" placeholder="Price (Rs)">
+    <input id="pcat" placeholder="Category">
+    <input id="pimg" placeholder="Image URL">
+
+    <button onclick="addProduct()">Add Product</button>
+</section>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Umar Clothing Store</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadProducts()">
+
+<header>
+    <h1>Umar Clothing Store</h1>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="#" onclick="document.getElementById('search').focus()">Search</a>
+        <a href="cart.html">Cart</a>
+        <a href="admin.html">Admin</a>
+    </nav>
+</header>
+
+<section class="search-box">
+    <input id="search" type="text" placeholder="Search clothes..." onkeyup="loadProducts(this.value)">
+</section>
+
+<section id="product-list" class="products"></section>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
